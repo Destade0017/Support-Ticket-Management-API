@@ -1,5 +1,6 @@
 import express from "express";
-import router from "./routes/ticket.routes.js";
+import ticketRouter from "./routes/ticket.routes.js";
+import replyRouter from "./routes/reply.routes.js";
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.get("/", (req, res) => {
 })
 
 //app routes
-app.use("/api/v1/tickets", router)
+app.use("/api/v1/tickets", ticketRouter)
+app.use("/api/v1/tickets", replyRouter)
 
 export default app;

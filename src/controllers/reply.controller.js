@@ -78,12 +78,23 @@ const getReplies = async (req, res) => {
       })
     }
 
-    const tickets = await Reply.find({ ticket: id }).sort({ createdAt: 1 })
+    //check if ticket exist
+    const tickerExists = await Ticket.exists({ _id: id })
+
+    if(!tickerExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Ticket not found"
+      })
+    }
+
+    const replies = await Reply.find({ ticket: id }).sort({ createdAt: 1 })
 
     return res.status(200).json({
       success: true,
+      count: replies.length,
       message: "Replies fetched successfully",
-      data: tickets
+      data: replies
     })
 
   } catch (error) {

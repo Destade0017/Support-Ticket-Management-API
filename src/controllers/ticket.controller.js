@@ -93,6 +93,16 @@ const updateTicket = async (req, res) => {
     if(priority) { updates.priority = priority; }
     if(status) { updates.status = status; }
 
+    if(Object.keys(updates).length === 0){
+      return res.status(400).json({
+        success: false,
+        message: "Provide at least one field"
+      })
+    }
+
+    //update timestmap
+    updates.updatedAt = Date.now();
+
     const ticket = await Ticket.findByIdAndUpdate(id,
       updates,
       {

@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 //create a reply
 const createReply = async (req, res) => {
-    try {
+  try {
 
     const { id } = req.params;
 
@@ -34,7 +34,7 @@ const createReply = async (req, res) => {
       })
      }
 
-      const newReply = new Reply.create({
+      const newReply = await Reply.create({
         ticket: id,
         message,
         author
@@ -72,16 +72,6 @@ const getReplies = async (req, res) => {
     const ticket = await Ticket.exists({ _id: id })
 
     if(!ticket) {
-      return res.status(404).json({
-        success: false,
-        message: "Ticket not found"
-      })
-    }
-
-    //check if ticket exist
-    const tickerExists = await Ticket.exists({ _id: id })
-
-    if(!tickerExists) {
       return res.status(404).json({
         success: false,
         message: "Ticket not found"

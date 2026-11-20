@@ -178,4 +178,66 @@ const deleteTicket = async (req, res) => {
   }
 }
 
-export { createTicket, getAllTicket, getOneTicket, deleteTicket }
+//assign a ticket to an agent
+const assignTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    //check if valid mongoose id
+    if(!mongoose.Types.ObjectId.isValid(id)){
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Mongoose ID"
+      })
+    }
+
+    //get agent name from the json body
+    const { agent } = req.body;
+
+    if(!agent){
+      return res.status(400).json({
+        success: false,
+        message: "Please provide an agent to be assigned"
+      })
+    }
+
+    //check if ticket exist
+    const ticket = await Ticket.findById(id);
+
+    if(!ticket){
+      return res.status(404).json({
+        success: false,
+        message: "Ticket does not exists"
+      })
+    }
+
+    if(ticket.status === "closed"){
+      return res.status(400).json({
+        success: false,
+        message: "Cannot assign a closed ticket"
+      })
+    }
+
+    ticket.assignedTo === agent;
+
+    if(ticket.status === "open"){
+      ticket.status = "in-progress"
+    }
+
+    await ticket.save();
+
+    return res.status(200).json({
+      success: true,
+      false: `Ticket assigned successfully to ${agent}`,
+      ticket
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    })
+  }
+}
+
+export { createTicket, getAllTicket, getOneTicket, deleteTicket, assignTicket }

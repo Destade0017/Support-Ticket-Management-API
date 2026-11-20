@@ -5,7 +5,7 @@ import { Ticket } from "../models/Ticket.js";
 const createTicket = async (req, res) => {
   try{
     //get the needed info from the body
-    const { title,  description, category, priority, status } = req.body;
+    const { title,  description, category, priority, status, createdBy } = req.body;
 
     //basic validators
   if ( !title || !description || !category || !priority || !status ) {
@@ -21,6 +21,7 @@ const createTicket = async (req, res) => {
       category,
       priority,
       status,
+      createdBy
     })
 
     return res.status(201).json({
@@ -47,7 +48,7 @@ const getOneTicket = async (req, res) => {
       })
     }
 
-    const ticket = await Ticket.findById(id).select("-password");
+    const ticket = await Ticket.findById(id);
 
     if(!ticket) {
       return res.status(404).json({
@@ -128,7 +129,7 @@ const getAllTicket = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "All users fetched!",
+      message: "All tickets fetched!",
       tickets,
     })
 
@@ -218,7 +219,7 @@ const assignTicket = async (req, res) => {
       })
     }
 
-    ticket.assignedTo === agent;
+    ticket.assignedTo = agent;
 
     if(ticket.status === "open"){
       ticket.status = "in-progress"
@@ -240,4 +241,4 @@ const assignTicket = async (req, res) => {
   }
 }
 
-export { createTicket, getAllTicket, getOneTicket, deleteTicket, assignTicket }
+export { createTicket, updateTicket, getAllTicket, getOneTicket, deleteTicket, assignTicket }

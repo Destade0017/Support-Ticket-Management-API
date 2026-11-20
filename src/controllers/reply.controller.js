@@ -1,6 +1,8 @@
 import { Ticket } from "../models/Ticket.js";
+import { Reply } from "../models/Reply.js";
+import mongoose from "mongoose";
 
-//create a ticket
+//create a reply
 const createReply = async (req, res) => {
   try {
 
@@ -47,8 +49,41 @@ const createReply = async (req, res) => {
     })
 
   } catch (error) {
-
+     return res.status(500).json({
+      success: false,
+      message: "Error creating reply",
+      error: error.message,
+     })
   }
 }
 
-export { createReply }
+//get replies
+const getReplies = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    //check for valid mongoose id
+    if(!mongoose.Types.ObjectId.isValid(id)){
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Mongoose ID",
+      })
+    }
+
+    const replies = await Reply.find();
+
+    return res.status(200).json({
+      success: true,
+      message: "Replies fetched successfully",
+      data: replies,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error getting replies",
+      error: error.message,
+    })
+  }
+}
+
+export { createReply, getReplies }

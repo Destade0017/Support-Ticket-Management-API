@@ -309,4 +309,62 @@ const assignTicket = async (req, res) => {
   }
 }
 
-export { createTicket, updateTicket, getAllTicket, getOneTicket, deleteTicket, assignTicket }
+//get ticket statistics
+const getTicketStatistics = async (req, res) => {
+  try {
+    const stats = await Ticket.aggregate([
+      {
+        $facet: {
+          totalTickets: [
+            { $count: "count" }
+          ],
+          byStatus: [
+            {
+              $group: {
+                _id: "status",
+                count: { $sum: 1 }
+              }
+            }
+          ],
+          byPriority : [
+            {
+              $group: {
+                _id: "$priority",
+                count: { $sum: 1 }
+              }
+            }
+          ]
+        }
+      }
+    ]);
+
+    const total = stats[0].totalTickets[0]?.count || 0;
+
+    const formattedByStatus = stats[0].byStatus.reduce((acc, curr) => {
+      acc[curr.id] = curr.count;
+      return acc;
+    }, {});
+
+    const formattedByPriority = stats[0].byPriority.reduce((acc, curr) => {
+      acc[curr._id] = curr.count;
+      return acc;
+    }, {});
+
+    return res.status(200).json({
+      success: true, 
+      data: {
+        totalTickets: total,
+        byStatus: formattedByStatus,
+        byPriority: formattedByPriority
+      }
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    })
+  }
+}
+
+export { getTicketStatistics, createTicket, updateTicket, getAllTicket, getOneTicket, deleteTicket, assignTicket }

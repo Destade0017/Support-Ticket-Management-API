@@ -4,36 +4,53 @@ import { Ticket } from "../models/Ticket.js";
 //create a ticket
 const createTicket = async (req, res) => {
   try {
-    //get the needed info from the body
     const { title, description, category, priority, status, createdBy } = req.body;
 
-    //basic validators
+    //basic validation 
     if (!title || !description || !category || !priority || !status || !createdBy) {
       return res.status(400).json({
-        message: "All Fields are required"
-      });
+        success: false,
+        message: "All fields are required!"
+      })
     }
-
-    //create a new ticket
-    const ticket = await Ticket.create({
-      title,
-      description,
-      category,
-      priority,
-      status,
-      createdBy
+  } catch (error) {
+    return res.status(500).json({
+      success: "Internal Server Error"
     })
-
-    return res.status(201).json({
-      message: "Ticket created successfully",
-      ticket
-    })
-  }
-  catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal Server Error" });
   }
 }
+// const createTicket = async (req, res) => {
+//   try {
+//     //get the needed info from the body
+//     const { title, description, category, priority, status, createdBy } = req.body;
+
+//     //basic validators
+//     if (!title || !description || !category || !priority || !status || !createdBy) {
+//       return res.status(400).json({
+//         message: "All Fields are required"
+//       });
+//     }
+
+//     //create a new ticket
+//     const ticket = await Ticket.create({
+//       title,
+//       description,
+//       category,
+//       priority,
+//       status,
+//       createdBy
+//     })
+
+//     return res.status(201).json({
+//       message: "Ticket created successfully",
+//       ticket
+//     })
+//   }
+//   catch (error) {
+//     console.log(error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// }
 
 //get one ticket
 const getOneTicket = async (req, res) => {
@@ -136,7 +153,7 @@ const updateTicket = async (req, res) => {
 const getAllTicket = async (req, res) => {
   try {
 
-    const { status, priority, category } = req.query;
+    const { status, priority, category, search } = req.query;
 
     const filter = {}
 
@@ -152,11 +169,11 @@ const getAllTicket = async (req, res) => {
       filter.category = category;
     }
 
-    if (search){
-      
+    if (search) {
+      filter.title = { $regex: search, $options: "i" }
     }
 
-      const tickets = await Ticket.find(filter);
+    const tickets = await Ticket.find(filter);
 
     res.status(200).json({
       success: true,

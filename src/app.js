@@ -10,7 +10,16 @@ app.use(express.urlencoded({ extended: true}));
 
 //basic routes
 app.get("/", (req, res) => {
-  res.send("API is running!");
+  res.status(200).send("API is running!");
+})
+
+//health check
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "App is healthy and running!",
+    timestamps: Date()
+  })
 })
 
 //app routes

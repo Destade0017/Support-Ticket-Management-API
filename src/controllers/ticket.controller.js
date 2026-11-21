@@ -2,36 +2,18 @@ import mongoose from "mongoose";
 import { Ticket } from "../models/Ticket.js";
 
 //create a ticket
-const createTicket = async (req, res) => {
-  try {
-    const { title, description, category, priority, status, createdBy } = req.body;
-
-    //basic validation 
-    if (!title || !description || !category || !priority || !status || !createdBy) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required!"
-      })
-    }
-  } catch (error) {
-    return res.status(500).json({
-      success: "Internal Server Error"
-    })
-  }
-}
 // const createTicket = async (req, res) => {
 //   try {
-//     //get the needed info from the body
 //     const { title, description, category, priority, status, createdBy } = req.body;
 
-//     //basic validators
+//     //basic validation 
 //     if (!title || !description || !category || !priority || !status || !createdBy) {
 //       return res.status(400).json({
-//         message: "All Fields are required"
-//       });
+//         success: false,
+//         message: "All fields are required!"
+//       })
 //     }
 
-//     //create a new ticket
 //     const ticket = await Ticket.create({
 //       title,
 //       description,
@@ -42,15 +24,52 @@ const createTicket = async (req, res) => {
 //     })
 
 //     return res.status(201).json({
-//       message: "Ticket created successfully",
-//       ticket
+//       success: true,
+//       message: "Ticket created successfully"
+//     })
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: "Internal Server Error"
 //     })
 //   }
-//   catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: "Internal Server Error" });
-//   }
 // }
+
+const createTicket = async (req, res) => {
+  try {
+    //get the needed info from the body
+    const { title, description, category, priority, status, createdBy } = req.body;
+
+    //basic validators
+    if (!title || !description || !category || !priority || !status || !createdBy) {
+      return res.status(400).json({
+        message: "All Fields are required"
+      });
+    }
+
+    //create a new ticket
+    const ticket = await Ticket.create({
+      title,
+      description,
+      category,
+      priority,
+      status,
+      createdBy
+    })
+
+    return res.status(201).json({
+      message: "Ticket created successfully",
+      ticket
+    })
+  }
+  catch (error) {
+    res.status(500).json({ 
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
+
 
 //get one ticket
 const getOneTicket = async (req, res) => {

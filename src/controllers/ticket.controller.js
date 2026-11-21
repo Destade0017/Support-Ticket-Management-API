@@ -3,12 +3,12 @@ import { Ticket } from "../models/Ticket.js";
 
 //create a ticket
 const createTicket = async (req, res) => {
-  try{
+  try {
     //get the needed info from the body
-    const { title,  description, category, priority, status, createdBy } = req.body;
+    const { title, description, category, priority, status, createdBy } = req.body;
 
     //basic validators
-  if ( !title || !description || !category || !priority || !status ) {
+    if (!title || !description || !category || !priority || !status || !createdBy) {
       return res.status(400).json({
         message: "All Fields are required"
       });
@@ -29,19 +29,19 @@ const createTicket = async (req, res) => {
       ticket
     })
   }
-  catch(error){
+  catch (error) {
     console.log(error);
-    res.status(500).json({message: "Internal Server Error"});
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
 //get one ticket
 const getOneTicket = async (req, res) => {
-  try{
+  try {
     const { id } = req.params;
 
     //check if id is a valid mongoose id
-    if(!mongoose.Types.ObjectId.isValid(id)){
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
         message: "Invalid Mongoose ID"
@@ -50,7 +50,7 @@ const getOneTicket = async (req, res) => {
 
     const ticket = await Ticket.findById(id);
 
-    if(!ticket) {
+    if (!ticket) {
       return res.status(404).json({
         success: false,
         message: "Ticket not found"
@@ -63,7 +63,7 @@ const getOneTicket = async (req, res) => {
       ticket
     })
   }
-  catch(error){
+  catch (error) {
     console.log(error);
     res.status(500).json({
       message: "Internal Server Error"
@@ -77,7 +77,7 @@ const updateTicket = async (req, res) => {
     const { id } = req.params;
 
     //check for valid mongoose id
-    if(!mongoose.Types.ObjectId.isValid(id)){
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         message: "Invalid Mongoose ID"
       })
@@ -87,13 +87,13 @@ const updateTicket = async (req, res) => {
     const { title, description, category, priority, status } = req.body;
 
     const updates = {};
-    if(title) { updates.title = title; }
-    if(description) { updates.description = description; }
-    if(category) { updates.category = category; }
-    if(priority) { updates.priority = priority; }
-    if(status) { updates.status = status; }
+    if (title) { updates.title = title; }
+    if (description) { updates.description = description; }
+    if (category) { updates.category = category; }
+    if (priority) { updates.priority = priority; }
+    if (status) { updates.status = status; }
 
-    if(Object.keys(updates).length === 0){
+    if (Object.keys(updates).length === 0) {
       return res.status(400).json({
         success: false,
         message: "Provide at least one field"
@@ -110,7 +110,7 @@ const updateTicket = async (req, res) => {
         runValidators: true
       });
 
-    if(!ticket){
+    if (!ticket) {
       return res.status(404).json({
         success: false,
         message: "Ticket not found"
@@ -135,10 +135,32 @@ const updateTicket = async (req, res) => {
 //get all tickets
 const getAllTicket = async (req, res) => {
   try {
-    const tickets = await Ticket.find();
+
+    const { status, priority, category } = req.query;
+
+    const filter = {}
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (priority) {
+      filter.priority = priority;
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (search){
+      
+    }
+
+      const tickets = await Ticket.find(filter);
 
     res.status(200).json({
       success: true,
+      count: tickets.length,
       message: "All tickets fetched!",
       tickets,
     })
@@ -158,7 +180,7 @@ const deleteTicket = async (req, res) => {
     const { id } = req.params;
 
     //check for valid mongoose id
-    if(!mongoose.Types.ObjectId.isValid(id)){
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
         message: "Invalid Mongoose ID"
@@ -167,7 +189,7 @@ const deleteTicket = async (req, res) => {
 
     const ticket = await Ticket.findByIdAndDelete(id);
 
-    if(!ticket){
+    if (!ticket) {
       return res.status(404).json({
         success: false,
         message: "Ticket not found"
@@ -195,7 +217,7 @@ const assignTicket = async (req, res) => {
     const { id } = req.params;
 
     //check if valid mongoose id
-    if(!mongoose.Types.ObjectId.isValid(id)){
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
         message: "Invalid Mongoose ID"
@@ -205,7 +227,7 @@ const assignTicket = async (req, res) => {
     //get agent name from the json body
     const { agent } = req.body;
 
-    if(!agent){
+    if (!agent) {
       return res.status(400).json({
         success: false,
         message: "Please provide an agent to be assigned"
@@ -215,14 +237,14 @@ const assignTicket = async (req, res) => {
     //check if ticket exist
     const ticket = await Ticket.findById(id);
 
-    if(!ticket){
+    if (!ticket) {
       return res.status(404).json({
         success: false,
         message: "Ticket does not exists"
       })
     }
 
-    if(ticket.status === "closed"){
+    if (ticket.status === "closed") {
       return res.status(400).json({
         success: false,
         message: "Cannot assign a closed ticket"
@@ -231,7 +253,7 @@ const assignTicket = async (req, res) => {
 
     ticket.assignedTo = agent;
 
-    if(ticket.status === "open"){
+    if (ticket.status === "open") {
       ticket.status = "in-progress"
     }
 
@@ -239,7 +261,7 @@ const assignTicket = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      false: `Ticket assigned successfully to ${agent}`,
+      message: `Ticket assigned successfully to ${agent}`,
       ticket
     })
   } catch (error) {

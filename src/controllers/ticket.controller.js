@@ -174,6 +174,10 @@ const getAllTicket = async (req, res) => {
 
     const { status, priority, category, search } = req.query;
 
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     const filter = {}
 
     if (status) {
@@ -192,7 +196,7 @@ const getAllTicket = async (req, res) => {
       filter.title = { $regex: search, $options: "i" }
     }
 
-    const tickets = await Ticket.find(filter);
+    const tickets = await Ticket.find(filter).skip(skip).limit(limit);
 
     res.status(200).json({
       success: true,

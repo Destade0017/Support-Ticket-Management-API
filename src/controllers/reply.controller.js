@@ -3,7 +3,7 @@ import { Reply } from "../models/Reply.js";
 import mongoose from "mongoose";
 
 //create a reply
-const createReply = async (req, res) => {
+const createReply = async (req, res, next) => {
   try {
 
     const { id } = req.params;
@@ -47,16 +47,12 @@ const createReply = async (req, res) => {
       })
 
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    })
+    next(error);
   }
 }
 
 //get all replies
-const getReplies = async (req, res) => {
+const getReplies = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -88,11 +84,7 @@ const getReplies = async (req, res) => {
     })
 
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    })
+    next(error);
   }
 }
 

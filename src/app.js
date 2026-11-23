@@ -1,6 +1,7 @@
 import express from "express";
 import ticketRouter from "./routes/ticket.routes.js";
 import replyRouter from "./routes/reply.routes.js";
+import errorHandler from "./middlewares/error.middleware.js";
 
 const app = express();
 
@@ -25,5 +26,8 @@ app.get("/health", (req, res) => {
 //app routes
 app.use("/api/v1/tickets", ticketRouter)
 app.use("/api/v1/tickets", replyRouter)
+
+
+app.use(errorHandler);
 
 export default app;

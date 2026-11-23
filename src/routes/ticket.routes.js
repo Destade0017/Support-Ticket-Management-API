@@ -6,8 +6,8 @@ const router = Router();
 router.post("/", createTicket);
 router.get("/", getAllTicket);
 router.get("/:id", getOneTicket);
-router.post("/:id", updateTicket);
+router.patch("/:id", updateTicket);
 router.delete("/:id", deleteTicket);
-router.post("/:id/assign", assignTicket);
+router.patch("/:id/assign", assignTicket);
 
 export default router;

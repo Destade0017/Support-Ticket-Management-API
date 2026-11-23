@@ -34,7 +34,7 @@ import { Ticket } from "../models/Ticket.js";
 //   }
 // }
 
-const createTicket = async (req, res) => {
+const createTicket = async (req, res, next) => {
   try {
     //get the needed info from the body
     const { title, description, category, priority, status, createdBy } = req.body;
@@ -60,19 +60,13 @@ const createTicket = async (req, res) => {
       message: "Ticket created successfully",
       ticket
     })
-  }
-  catch (error) {
-    res.status(500).json({ 
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    });
+  } catch (error) {
+    next(error);
   }
 }
 
-
 //get one ticket
-const getOneTicket = async (req, res) => {
+const getOneTicket = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -98,17 +92,13 @@ const getOneTicket = async (req, res) => {
       message: "Ticket fetched successfully",
       ticket
     })
-  }
-  catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "Internal Server Error"
-    });
+  } catch (error) {
+    next(error);
   }
 }
 
 //update a ticket
-const updateTicket = async (req, res) => {
+const updateTicket = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -160,16 +150,12 @@ const updateTicket = async (req, res) => {
     })
 
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    })
+    next(error);
   }
 }
 
 //get all tickets
-const getAllTicket = async (req, res) => {
+const getAllTicket = async (req, res, next) => {
   try {
 
     const { status, priority, category, search } = req.query;
@@ -196,7 +182,7 @@ const getAllTicket = async (req, res) => {
       filter.title = { $regex: search, $options: "i" }
     }
 
-    const tickets = await Ticket.find(filter).skip(skip).limit(limit);
+    const tickets = await Ticket.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -206,16 +192,12 @@ const getAllTicket = async (req, res) => {
     })
 
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    })
+    next(error);
   }
 }
 
 //delete a ticket
-const deleteTicket = async (req, res) => {
+const deleteTicket = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -243,16 +225,12 @@ const deleteTicket = async (req, res) => {
     })
 
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    })
+    next(error);
   }
 }
 
 //assign a ticket to an agent
-const assignTicket = async (req, res) => {
+const assignTicket = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -305,16 +283,12 @@ const assignTicket = async (req, res) => {
       ticket
     })
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    })
+    next(error);
   }
 }
 
 //get ticket statistics
-const getTicketStatistics = async (req, res) => {
+const getTicketStatistics = async (req, res, next) => {
   try {
     const stats = await Ticket.aggregate([
       {
@@ -363,11 +337,7 @@ const getTicketStatistics = async (req, res) => {
       }
     })
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message
-    })
+    next(error);
   }
 }
 
